@@ -1,10 +1,12 @@
-import { topic, faas, api, events, collection } from "@nitric/sdk";
+import { topic, api, collection } from "@nitric/sdk"
 
 // Collections
-export const msgs = collection("msg").for("writing", "reading");
+export const msgs = collection("msg").for("writing", "reading")
 
 // API
-export const mainApi = api("main");
+export const mainApi = api("main")
 
 // Topics
-export const messagesTopic: string = "messagesTopic";
+export const messagePub = topic("messagesTopic").for("publishing")
+
+export const messageSub = topic("messagesTopic")

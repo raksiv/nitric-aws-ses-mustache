@@ -1,19 +1,18 @@
 import { uuid } from "uuidv4";
-import { faas, events } from "@nitric/sdk";
-import * as dotenv from "dotenv";
-import * as resources from "../common/resources";
-import { fetchEventHistory } from "./event-history";
+import { faas } from "@nitric/sdk";
+import { mainApi, messagePub} from "../common/resources";
+import { fetchEventHistory } from "../common/event-history";
 
-resources.mainApi.get("/events", fetchEventHistory);
-resources.mainApi.get("/welcome/:name", publishMessageEvent);
+mainApi.get("/events", fetchEventHistory);
+mainApi.get("/welcome/:name", publishMessageEvent);
 
 // Publish the message on the messages Topic
 async function publishMessageEvent(
   ctx: faas.HttpContext
 ): Promise<faas.HttpContext> {
-  dotenv.config();
 
-  const welcomeMsg = `Glad you're here developing with us - ${ctx.req.params["name"]}.`;
+  const { name } = ctx.req.params
+  const welcomeMsg = `Glad you're here developing with us - ${name}.`;
   const subject = `Welcome to Nitric!`;
 
   const template = `<!DOCTYPE html PUBLIC>
@@ -29,23 +28,21 @@ async function publishMessageEvent(
       </body>
   </html>`;
 
-  events()
-    .topic(resources.messagesTopic)
-    .publish({
-      payload: {
-        value: {
-          id: uuid(),
-          timestamp: Date.now().toString(),
-          recipient: [process.env.SYS_ADMIN_EMAIL],
-          subject: subject,
-          template: template,
-          message: welcomeMsg,
-          data: {
-            name: ctx.req.params["name"],
-          },
+ await messagePub.publish({
+    payload: {
+      value: {
+        id: uuid(),
+        timestamp: Date.now().toString(),
+        recipient: [process.env.SYS_ADMIN_EMAIL],
+        subject: subject,
+        template: template,
+        message: welcomeMsg,
+        data: {
+          name: name,
         },
       },
-    });
+    },
+  });
 
   // Return the message in the response
   ctx.res.json({
