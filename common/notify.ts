@@ -14,8 +14,8 @@ export async function notify(ctx: faas.EventContext): Promise<faas.EventContext>
       sender: process.env.SENDER_EMAIL as string,
       recipient: ed.value.recipient,
       body: "",
-      html: Mustache.render(ed.value.template, ed.value.data),
-      subject: Mustache.render(ed.value.subject, ed.value.data),
+      html: ed.value.template,
+      subject: ed.value.subject,
     })
   );
   return ctx;

@@ -5,7 +5,7 @@ export interface EventData {
     subject: string;
     template: string;
     message: string;
-    data: string;
+    data: any;
     timestamp: string;
   };
 }
